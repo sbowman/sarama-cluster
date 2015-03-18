@@ -381,7 +381,7 @@ func (c *Consumer) rebalance(claims Claims) (<-chan zk.Event, error) {
 	}
 
 	// Fetch consumer list
-	consumerIDs, watch, err := c.zoo.Consumers(c.group)
+	consumerIDs, watch, err := c.zoo.Consumers(c.group, c.topic)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +463,7 @@ func (c *Consumer) claim(partitionID int32) (sarama.PartitionConsumer, error) {
 
 // Registers consumer with zookeeper
 func (c *Consumer) register() error {
-	if err := c.zoo.RegisterGroup(c.group); err != nil {
+	if err := c.zoo.RegisterGroup(c.group, c.topic); err != nil {
 		return err
 	}
 	if err := c.zoo.RegisterConsumer(c.group, c.id, c.topic); err != nil {

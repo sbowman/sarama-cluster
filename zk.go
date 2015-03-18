@@ -34,8 +34,8 @@ func NewZK(servers []string, recvTimeout time.Duration) (*ZK, error) {
  *******************************************************************/
 
 // Consumers returns all active consumers within a group
-func (z *ZK) Consumers(group string) ([]string, <-chan zk.Event, error) {
-	root := "/consumers/" + group + "/ids"
+func (z *ZK) Consumers(group, topic string) ([]string, <-chan zk.Event, error) {
+	root := "/consumers/" + group + "/ids/" + topic
 	err := z.MkdirAll(root)
 	if err != nil {
 		return nil, nil, err
@@ -127,8 +127,8 @@ func (z *ZK) Offset(group, topic string, partitionID int32) (int64, error) {
 }
 
 // RegisterGroup creates/updates a group directory
-func (z *ZK) RegisterGroup(group string) error {
-	return z.MkdirAll("/consumers/" + group + "/ids")
+func (z *ZK) RegisterGroup(group, topic string) error {
+	return z.MkdirAll("/consumers/" + group + "/ids/" + topic)
 }
 
 // RegisterConsumer registers a new consumer within a group
@@ -143,12 +143,12 @@ func (z *ZK) RegisterConsumer(group, id, topic string) error {
 		return err
 	}
 
-	return z.Create("/consumers/"+group+"/ids/"+id, data, true)
+	return z.Create("/consumers/"+group+"/ids/"+topic+"/"+id, data, true)
 }
 
 // DeleteConsumer deletes the consumer from registry
-func (z *ZK) DeleteConsumer(group, id string) error {
-	return z.Delete("/consumers/"+group+"/ids/"+id, 0)
+func (z *ZK) DeleteConsumer(group, id, topic string) error {
+	return z.Delete("/consumers/"+group+"/ids/"+topic+"/"+id, 0)
 }
 
 /*******************************************************************
